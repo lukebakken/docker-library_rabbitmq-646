@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+    rabbitmq:
+        image: rabbitmq:management
+        ports:
+            - "15672:15672"
+        networks:
+            mynetwork:
+                ipv4_address: 172.20.2.2
+
+    debian:
+        image: debian
+        networks:
+            mynetwork:
+                ipv4_address: 172.20.2.3
+        command: >
+            bash -c "
+              apt-get update && apt-get install -y python3 curl && \
+              curl http://172.20.2.2:15672/cli/rabbitmqadmin > rabbitmqadmin && \
+              chmod +x rabbitmqadmin && \
+              python3 rabbitmqadmin -H rabbitmq -u guest -p guest list vhosts && \
+              python3 rabbitmqadmin -H 172.20.2.2 -u guest -p guest list vhosts && \
+              python3 rabbitmqadmin -H 127.0.0.1 -u guest -p guest list vhosts && \
+              python3 rabbitmqadmin -H localhost -u guest -p guest list vhosts
+            "
+        depends_on:
+            rabbitmq:
+                condition: service_started
+
+networks:
+    mynetwork:
+        name: mynetwork
+        ipam:
+            config:
+                - subnet: 172.20.2.0/24
