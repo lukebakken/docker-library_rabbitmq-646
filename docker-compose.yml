@@ -16,12 +16,12 @@ services:
                 ipv4_address: 172.20.2.3
         command: >
             bash -c "
-              apt-get update && apt-get install -y python3 curl && \
-              curl http://172.20.2.2:15672/cli/rabbitmqadmin > rabbitmqadmin && \
-              chmod +x rabbitmqadmin && \
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update --yes && apt-get install --yes python3 curl && \
+              curl -LO http://172.20.2.2:15672/cli/rabbitmqadmin && \
               python3 rabbitmqadmin -H rabbitmq -u guest -p guest list vhosts && \
-              python3 rabbitmqadmin -H 172.20.2.2 -u guest -p guest list vhosts && \
-              python3 rabbitmqadmin -H 127.0.0.1 -u guest -p guest list vhosts && \
+              python3 rabbitmqadmin -H 172.20.2.2 -u guest -p guest list vhosts; \
+              python3 rabbitmqadmin -H 127.0.0.1 -u guest -p guest list vhosts; \
               python3 rabbitmqadmin -H localhost -u guest -p guest list vhosts
             "
         depends_on:
